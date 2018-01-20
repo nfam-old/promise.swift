@@ -5,7 +5,7 @@ PROJECT="Promise"
 if [[ -z "${TRAVIS_JOB_ID}" ]]; then
     echo "TRAVIS_JOB_ID is not defined."
 
-else if [[ -z "${CODECOV_TOKEN}" ]]; then
+elif [[ -z "${CODECOV_TOKEN}" ]]; then
     echo "CODECOV_TOKEN is not defined."
 
 else
@@ -26,23 +26,23 @@ else
     # Show coverage
     slather coverage --show \
         --scheme $PROJECT-Package \
-        --ignore Tests/**/* \
+        --ignore "Tests/**/*" \
         $PROJECT.xcodeproj
 
     # Post to Coveralls
     slather coverage \
         --scheme $PROJECT-Package \
-        --ignore Tests/**/* \
+        --ignore "Tests/**/*" \
         -c \
-        ./$PROJECT.xcodeproj/
+        $PROJECT.xcodeproj
 
     # Generate coverage report for codecov
     slather coverage \
         --scheme $PROJECT-Package \
-        --ignore Tests/**/* \
+        --ignore "Tests/**/*" \
         -x \
         --output-directory .coverage \
-        ./$PROJECT.xcodeproj/
+        $PROJECT.xcodeproj
 
     # Post coverage to codecov
     curl -s https://codecov.io/bash > .coverage/codecov.sh
