@@ -54,7 +54,7 @@ extension Promise {
             var state = State.ready
             do {
                 try body(
-                    { value in
+                    /* onFulfilled */ { value in
                         if state != .ready {
                             fatalError("Promise is already settled.")
                         }
@@ -63,7 +63,7 @@ extension Promise {
                             completion(Result(value: value))
                         }
                     },
-                    { error in
+                    /* onRejected */ { error in
                         if state != .ready {
                             fatalError("Promise is already settled.")
                         }
@@ -159,9 +159,7 @@ extension Promise {
     /// - Parameter promises: Promises that will resolve or reject.
     ///
     /// - Returns: A `Promise`.
-    public class func all<S: Sequence>(resolved promises: S) -> Promise<[T]>
-        where S.Iterator.Element == Promise
-    {
+    public class func all<S: Sequence>(resolved promises: S) -> Promise<[T]> where S.Iterator.Element == Promise {
         let promises = Array(promises)
         if promises.isEmpty {
             return Promise<[T]>(value: [T]())
@@ -226,9 +224,7 @@ extension Promise {
     /// reason from that `Promise`.
     ///
     /// - Parameter promises: Promises that will resolve or reject.
-    public class func race<S: Sequence>(promises: S) -> Promise<T>
-        where S.Iterator.Element == Promise
-    {
+    public class func race<S: Sequence>(promises: S) -> Promise<T> where S.Iterator.Element == Promise {
         let promises = Array(promises)
         guard !promises.isEmpty else {
             fatalError("Cannot race with an empty array of promises.")
@@ -558,7 +554,7 @@ extension Promise {
         self.chain.append(node: Node(in: queue ?? self.chain.queue) { result, completion in
             do {
                 let p = try finalizing()
-                p.then { value in
+                p.then { _ in
                     completion(result)
                 }
                 .catch { error in

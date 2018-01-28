@@ -1,20 +1,9 @@
-disabled_rules: # rule identifiers to exclude from running
-  - colon
-  - extension_access_modifier
-  - force_cast
+disabled_rules:
   - file_length
-  - function_body_length
-  - identifier_name
-  - opening_brace
-  - statement_position
-  - type_body_length
-  - unused_closure_parameter
+  - force_cast
 
-file_header:
-  required_pattern: |
-                    \/\/
-                    \/\/  .*?\.swift
-                    \/\/
-                    \/\/  Created by .*? on \d{1,2}\/\d{1,2}\/\d{4}\.
-                    \/\/  Copyright © \d{4} Ninh\. All rights reserved\.
-                    \/\/
+statement_position:
+  statement_mode: uncuddled_else
+function_body_length: 80
+line_length: 140
+cyclomatic_complexity: 20

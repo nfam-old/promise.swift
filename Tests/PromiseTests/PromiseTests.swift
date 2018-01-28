@@ -46,6 +46,7 @@ extension XCTestCase {
     }
 }
 
+// swiftlint:disable type_body_length
 class PromiseTests: XCTestCase {
 
     static var allTests = [
@@ -89,14 +90,14 @@ class PromiseTests: XCTestCase {
 
     func testInitResolve() {
         expectFulfillment { fulfill in
-            Promise<Int> { resolve, reject in
+            Promise<Int> { resolve, _ in
                 resolve(1)
             }
             .then { value in
                 XCTAssertEqual(value, 1)
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -104,7 +105,7 @@ class PromiseTests: XCTestCase {
 
     func testInitResolveResolve() {
         expectFatalError("Promise is already settled.") {
-            _ = Promise<Int> { resolve, reject in
+            _ = Promise<Int> { resolve, _ in
                 resolve(1)
                 resolve(2)
             }
@@ -122,7 +123,7 @@ class PromiseTests: XCTestCase {
 
     func testInitResolveThrow() {
         expectFatalError("Promise is already settled.") {
-            _ = Promise<Int> { resolve, reject in
+            _ = Promise<Int> { resolve, _ in
                 resolve(1)
                 throw TestError("test")
             }
@@ -131,10 +132,10 @@ class PromiseTests: XCTestCase {
 
     func testInitReject() {
         expectFulfillment { fulfill in
-            Promise<Int> { resolve, reject in
+            Promise<Int> { _, reject in
                 reject(TestError("test"))
             }
-            .then { value in
+            .then { _ in
                 XCTFail("Should not have value")
             }
             .catch { error -> Void in
@@ -155,7 +156,7 @@ class PromiseTests: XCTestCase {
 
     func testInitRejectReject() {
         expectFatalError("Promise is already settled.") {
-            _ = Promise<Int> { resolve, reject in
+            _ = Promise<Int> { _, reject in
                 reject(TestError("error1"))
                 reject(TestError("error2"))
             }
@@ -164,7 +165,7 @@ class PromiseTests: XCTestCase {
 
     func testInitRejectThrow() {
         expectFatalError("Promise is already settled.") {
-            _ = Promise<Int> { resolve, reject in
+            _ = Promise<Int> { _, reject in
                 reject(TestError("error1"))
                 throw TestError("test")
             }
@@ -173,10 +174,10 @@ class PromiseTests: XCTestCase {
 
     func testInitThrow() {
         expectFulfillment { fulfill in
-            Promise<Int> { resolve, reject in
+            Promise<Int> { _, _ in
                 throw TestError("test")
             }
-            .then { value in
+            .then { _ in
                 XCTFail("Should not have value")
             }
             .catch { error -> Void in
@@ -195,7 +196,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(value, 1)
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -206,7 +207,7 @@ class PromiseTests: XCTestCase {
             Promise<Int> {
                 throw TestError("test")
             }
-            .then { value in
+            .then { _ in
                 XCTFail("Should not have value")
             }
             .catch { error -> Void in
@@ -218,12 +219,12 @@ class PromiseTests: XCTestCase {
 
     func testInitValue() {
         expectFulfillment { fulfill in
-            Promise(value:  "test1")
+            Promise(value: "test1")
             .then { value in
                 XCTAssertEqual(value, "test1")
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -232,7 +233,7 @@ class PromiseTests: XCTestCase {
     func testInitError() {
         expectFulfillment { fulfill in
             Promise<Void>(error: TestError("error1"))
-            .then { value -> Void in
+            .then { _ -> Void in
                 XCTFail("Should have error")
             }
             .catch { error -> Void in
@@ -253,7 +254,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(value, "test2")
                 return Promise<String>(error: TestError("test3"))
             }
-            .then { value -> String in
+            .then { _ -> String in
                 XCTFail("Should have error")
                 return "error"
             }
@@ -293,7 +294,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(value, "test1")
                 throw TestError("error2")
             }
-            .then (fulfillment: { value -> String in
+            .then (fulfillment: { _ -> String in
                 XCTFail("Should not have value")
                 return "_"
             }, rejection: { error -> String in
@@ -322,13 +323,13 @@ class PromiseTests: XCTestCase {
             .then (fulfillment: { value in
                 XCTAssertEqual(value, "test2")
                 testN = 3
-            }, rejection: { error in
+            }, rejection: { _ in
                 XCTFail("Should not have error")
             })
             .then (fulfillment: { _ in
                 XCTAssertEqual(testN, 3)
                 throw TestError("error4")
-            }, rejection: { error in
+            }, rejection: { _ in
                 XCTFail("Should not have error")
             })
             .then (fulfillment: { _ in
@@ -340,7 +341,7 @@ class PromiseTests: XCTestCase {
             .then (fulfillment: { _ in
                 XCTAssertEqual(testN, 5)
                 throw TestError("error6")
-            }, rejection: { error in
+            }, rejection: { _ in
                 XCTFail("Should not have error")
             })
             .then (fulfillment: { _ in
@@ -366,18 +367,18 @@ class PromiseTests: XCTestCase {
             .then (fulfillment: { value -> String in
                 XCTAssertEqual(value, "test2")
                 return "test3"
-            }, rejection: { error -> String in
+            }, rejection: { _ -> String in
                 XCTFail("Should not have error")
                 return "_"
             })
             .then (fulfillment: { value -> String in
                 XCTAssertEqual(value, "test3")
                 throw TestError("error4")
-            }, rejection: { error -> String in
+            }, rejection: { _ -> String in
                 XCTFail("Should not have error")
                 return "_"
             })
-            .then (fulfillment: { value -> String in
+            .then (fulfillment: { _ -> String in
                 XCTFail("Should not have value")
                 return "_"
             }, rejection: { error -> String in
@@ -387,11 +388,11 @@ class PromiseTests: XCTestCase {
             .then (fulfillment: { value -> String in
                 XCTAssertEqual(value, "test5")
                 throw TestError("error6")
-            }, rejection: { error -> String in
+            }, rejection: { _ -> String in
                 XCTFail("Should not have error")
                 return "_"
             })
-            .then (fulfillment: { value -> String in
+            .then (fulfillment: { _ -> String in
                 XCTFail("Should not have value")
                 return "_"
             }, rejection: { error -> String in
@@ -415,14 +416,14 @@ class PromiseTests: XCTestCase {
             .then (fulfillment: { value -> Promise<String> in
                 XCTAssertEqual(value, "test2")
                 return Promise(value: "test3")
-            }, rejection: { error -> Promise<String> in
+            }, rejection: { _ -> Promise<String> in
                 XCTFail("Should not have error")
                 return Promise(value: "_")
             })
             .then (fulfillment: { value -> Promise<String> in
                 XCTAssertEqual(value, "test3")
                 throw TestError("error4")
-            }, rejection: { error -> Promise<String> in
+            }, rejection: { _ -> Promise<String> in
                 XCTFail("Should not have error")
                 return Promise(value: "_")
             })
@@ -436,7 +437,7 @@ class PromiseTests: XCTestCase {
             .then (fulfillment: { value -> Promise<String> in
                 XCTAssertEqual(value, "test5")
                 return Promise(error: TestError("error6"))
-            }, rejection: { error -> Promise<String> in
+            }, rejection: { _ -> Promise<String> in
                 XCTFail("Should not have error")
                 return Promise(value: "_")
             })
@@ -461,6 +462,7 @@ class PromiseTests: XCTestCase {
         }
     }
 
+    // swiftlint:disable identifier_name
     func testThenStress() {
         expectFulfillment(timeout: 20) { fulfill in
             var values = [Int]()
@@ -478,16 +480,17 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(values, Array(0 ..< N))
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
     }
+    // swiftlint:enable identifier_name
 
     func testCatchReject() {
         expectFulfillment { fulfill in
             Promise<Void>(error: TestError("error1"))
-            .then { value -> Void in
+            .then { _ -> Void in
                 XCTFail("Should have error")
             }
             .catch { error -> Promise<Void> in
@@ -497,7 +500,7 @@ class PromiseTests: XCTestCase {
             .catch { error -> Void in
                 XCTAssertEqual((error as! TestError).message, "error2")
             }
-            .catch { error -> Promise<Void> in
+            .catch { _ -> Promise<Void> in
                 XCTFail("Should not have error")
                 return Promise<Void>(value: Void())
             }
@@ -514,19 +517,19 @@ class PromiseTests: XCTestCase {
     func testCatchRecover() {
         expectFulfillment { fulfill in
             Promise<String>(error: TestError("error1"))
-            .then { value -> String in
+            .then { _ -> String in
                 XCTFail("Should have error")
                 return "error"
             }
             .catch { error -> Promise<String> in
                 XCTAssertEqual((error as! TestError).message, "error1")
-                return Promise<String>(value:  "recover")
+                return Promise<String>(value: "recover")
             }
             .then { value in
                 XCTAssertEqual(value, "recover")
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -565,7 +568,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(finalized, true)
                 XCTAssertEqual(value, "value")
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
             .finally {
@@ -578,13 +581,13 @@ class PromiseTests: XCTestCase {
         var finalized = false
         expectFulfillment { fulfill in
             Promise<String>(error: TestError("error1"))
-            .then { value -> String in
+            .then { _ -> String in
                 XCTFail("Should have error")
                 return "error"
             }
             .catch { error -> Promise<String> in
                 XCTAssertEqual((error as! TestError).message, "error1")
-                return Promise<String>(value:  "recover")
+                return Promise<String>(value: "recover")
             }
             .finally {
                 finalized = true
@@ -593,7 +596,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(finalized, true)
                 XCTAssertEqual(value, "recover")
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
             .finally {
@@ -611,7 +614,7 @@ class PromiseTests: XCTestCase {
             .then { value in
                 XCTAssertEqual(value, "value")
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
             .finally {
@@ -626,7 +629,7 @@ class PromiseTests: XCTestCase {
             .finally { _ -> Void in
                 throw TestError("throw1")
             }
-            .then { value in
+            .then { _ in
                 XCTFail("Should have error")
             }
             .catch { error in
@@ -635,7 +638,7 @@ class PromiseTests: XCTestCase {
             .finally { _ -> Promise<Void> in
                 throw TestError("throw2")
             }
-            .then { value in
+            .then { _ in
                 XCTFail("Should have error")
             }
             .catch { error in
@@ -653,7 +656,7 @@ class PromiseTests: XCTestCase {
             .finally {
                 return Promise<String>(error: TestError("reject"))
             }
-            .then { value in
+            .then { _ in
                 XCTFail("Should have error")
             }
             .catch { error in
@@ -674,7 +677,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(values[2] as? Double, 3.0)
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -733,7 +736,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(values, [13, 23, 33])
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -797,7 +800,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(values[2] as? Double, 33.1)
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -809,7 +812,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(values.count, 0)
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -826,7 +829,7 @@ class PromiseTests: XCTestCase {
             var promises = [Promise<Int>]()
             var count = 0
 
-            promises.append(Promise(value:  10)
+            promises.append(Promise(value: 10)
                 .then { value -> Int in
                     XCTAssertEqual(value, 10)
                     return value + 1
@@ -844,7 +847,7 @@ class PromiseTests: XCTestCase {
                 }
             )
 
-            promises.append(Promise(value:  20)
+            promises.append(Promise(value: 20)
                 .then { value -> Int in
                     XCTAssertEqual(value, 20)
                     return value + 1
@@ -860,7 +863,7 @@ class PromiseTests: XCTestCase {
                 }
             )
 
-            promises.append(Promise(value:  30)
+            promises.append(Promise(value: 30)
                 .then { value -> Int in
                     XCTAssertEqual(value, 30)
                     return value + 1
@@ -881,7 +884,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(values, [13, 23, 33])
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -892,7 +895,7 @@ class PromiseTests: XCTestCase {
             var promises = [Promise<Int>]()
             var rejected = false
 
-            promises.append(Promise(value:  10)
+            promises.append(Promise(value: 10)
                 .then { value -> Int in
                     XCTAssertEqual(value, 10)
                     return value + 1
@@ -910,7 +913,7 @@ class PromiseTests: XCTestCase {
                 }
             )
 
-            promises.append(Promise(value:  20)
+            promises.append(Promise(value: 20)
                 .then { value -> Int in
                     XCTAssertEqual(value, 20)
                     return value + 1
@@ -928,7 +931,7 @@ class PromiseTests: XCTestCase {
                 }
             )
 
-            promises.append(Promise(value:  30)
+            promises.append(Promise(value: 30)
                 .then { value -> Int in
                     XCTAssertEqual(value, 30)
                     return value + 1
@@ -937,14 +940,14 @@ class PromiseTests: XCTestCase {
                     XCTAssertEqual(value, 31)
                     return value + 1
                 }
-                .then { value -> Int in
+                .then { _ -> Int in
                     rejected = true
                     throw TestError("reject")
                 }
             )
 
             Promise.all(resolved: promises)
-            .then { values in
+            .then { _ in
                 XCTFail("Should have error")
             }
             .catch { error -> Void in
@@ -1018,7 +1021,7 @@ class PromiseTests: XCTestCase {
                 XCTAssertEqual(value, 33)
                 fulfill()
             }
-            .catch { error in
+            .catch { _ in
                 XCTFail("Should not have error")
             }
         }
@@ -1074,14 +1077,14 @@ class PromiseTests: XCTestCase {
                     XCTAssertEqual(value, 31)
                     return value + 1
                 }
-                .then { value -> Int in
+                .then { _ -> Int in
                     rejected = true
                     throw TestError("reject")
                 }
             )
 
             Promise.race(promises: promises)
-            .then { value in
+            .then { _ in
                 XCTFail("Should have error")
             }
             .catch { error -> Void in
