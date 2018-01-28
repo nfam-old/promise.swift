@@ -1,14 +1,54 @@
-os: linux
-dist: trusty
-sudo: required
-services: docker
-language: generic
 matrix:
   include:
-    - env: swift=latest
-    - env: swift=4
-    - env: swift=3.1
-install:
-  - docker pull swift:$swift;
+    - os: linux
+      dist: trusty
+      sudo: required
+      services: docker
+      language: generic
+      env: swift=latest
+    - os: linux
+      dist: trusty
+      sudo: required
+      services: docker
+      language: generic
+      env: swift=4.0
+    - os: linux
+      dist: trusty
+      sudo: required
+      services: docker
+      language: generic
+      env: swift=3.1
+    - os: osx
+      osx_image: xcode9.2
+      language: objective-c
+      env: project=Promise
+    - os: osx
+      osx_image: xcode8.3
+      language: objective-c
+      env: project=Promise
+before_install:
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      gem install slather --no-ri --no-rdoc;
+      swift --version;
+      swift package --version;
+      swift package generate-xcodeproj --enable-code-coverage;
+    fi;
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      docker pull swift:$swift;
+    fi;
 script:
-  - docker run -v $(pwd):/package -w /package swift:$swift /bin/sh -c "swift test"
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      swiftlint;
+      xcodebuild -scheme $project-Package -sdk macosx -configuration Release -derivedDataPath build -enableCodeCoverage YES -quiet build-for-testing;
+      xcodebuild -scheme $project-Package -sdk macosx -configuration Release -derivedDataPath build -enableCodeCoverage YES test-without-building;
+    fi;
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      docker run -v $(pwd):/package -w /package swift:$swift /bin/sh -c "swift test";
+    fi;
+after_success:
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      slather coverage --show                                       --scheme $project-Package --configuration Release --binary-basename $project --build-directory build $project.xcodeproj;
+      slather coverage --coveralls                                  --scheme $project-Package --configuration Release --binary-basename $project --build-directory build $project.xcodeproj;
+      slather coverage --cobertura-xml --output-directory .coverage --scheme $project-Package --configuration Release --binary-basename $project --build-directory build $project.xcodeproj;
+      bash <(curl -s https://codecov.io/bash) -f .coverage/cobertura.xml -X coveragepy -X gcov -X xcode;
+    fi;
